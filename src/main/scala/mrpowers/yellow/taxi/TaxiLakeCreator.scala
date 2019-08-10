@@ -53,6 +53,13 @@ object TaxiLakeCreator extends SparkSessionWrapper {
       .mode(SaveMode.Overwrite)
       .save(outputPath)
 
+    spark
+      .read
+      .format("delta")
+      .load(outputPath)
+      .select("passenger_count", "fare_amount")
+      .show()
+
     val p2 = new java.io.File("./src/main/resources/taxi_data/taxi2.csv").getCanonicalPath
     val df2 = spark
       .read
@@ -66,18 +73,33 @@ object TaxiLakeCreator extends SparkSessionWrapper {
       .mode(SaveMode.Append)
       .save(outputPath)
 
-//    val p3 = new java.io.File("./src/main/resources/taxi_data/taxi3.csv").getCanonicalPath
-//    val df3 = spark
-//      .read
-//      .option("header", "true")
-//      .option("charset", "UTF8")
-//      .csv(p3)
-//    df3
-//      .repartition(1)
-//      .write
-//      .format("delta")
-//      .mode(SaveMode.Append)
-//      .save(outputPath)
+    spark
+      .read
+      .format("delta")
+      .load(outputPath)
+      .select("passenger_count", "fare_amount")
+      .show()
+
+    spark
+      .read
+      .format("delta")
+      .option("versionAsOf", 0)
+      .load(outputPath)
+      .select("passenger_count", "fare_amount")
+      .show()
+
+    val p3 = new java.io.File("./src/main/resources/taxi_data/taxi3.csv").getCanonicalPath
+    val df3 = spark
+      .read
+      .option("header", "true")
+      .option("charset", "UTF8")
+      .csv(p3)
+    df3
+      .repartition(1)
+      .write
+      .format("delta")
+      .mode(SaveMode.Append)
+      .save(outputPath)
   }
 
 }
